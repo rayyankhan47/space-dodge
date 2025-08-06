@@ -11,8 +11,13 @@ BG = pygame.transform.scale(pygame.image.load("background-image.jpg"), (WIDTH, H
 PLAYER_WIDTH = 40
 PLAYER_HEIGHT = 60
 
-def draw():
+PLAYER_VEL = 5
+
+def draw(player):
     WIN.blit(BG, (0, 0))
+
+    pygame.draw.rect(WIN, (255, 0, 0), player)
+
     pygame.display.update()
 
 def main():
@@ -25,7 +30,12 @@ def main():
             if event.type == pygame.QUIT:
                 run = False
                 break
-        draw()
+
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT]:
+            player.x -= PLAYER_VEL
+
+        draw(player)
 
     pygame.quit()
 
