@@ -23,9 +23,14 @@ def draw(player):
 def main():
     run = True
 
-    player = pygame.Rect(200, HEIGHT - PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT)
+    player = pygame.Rect(200, HEIGHT - PLAYER_HEIGHT,
+                        PLAYER_WIDTH, PLAYER_HEIGHT)
+    
+    clock = pygame.time.Clock()
 
     while run:
+        clock.tick(60) # while loop will only run 60 times in one second
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -34,6 +39,8 @@ def main():
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
             player.x -= PLAYER_VEL
+        if keys[pygame.K_RIGHT]:
+            player.x += PLAYER_VEL
 
         draw(player)
 
