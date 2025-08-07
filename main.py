@@ -6,7 +6,7 @@ pygame.font.init()
 class ColouredRect: # This is me wrapping the pygame.Rect object in order to add a colour property.
     def __init__(self, x, y, width, height, colour):
         self.rect = pygame.Rect(x, y, width, height)
-        self.color = colour
+        self.colour = colour
     
     # Proxy attributes of pygame.Rect
 
@@ -14,13 +14,16 @@ class ColouredRect: # This is me wrapping the pygame.Rect object in order to add
         return getattr(self.rect, attr)
     
     def __setattr__(self, attr, value):
-        if attr in ("rect", "color"):
+        if attr in ("rect", "colour"):
             super().__setattr__(attr, value)
         else:
             setattr(self.rect, attr, value)
 
     def draw(self, surface):
-        pygame.draw.rect(surface, self.color, self.rect)
+        pygame.draw.rect(surface, self.colour, self.rect)
+
+    def colliderect(self, other):
+        return self.rect.colliderect(other.rect)
 
 
 
@@ -47,25 +50,27 @@ def draw(player, elapsed_time, stars, points):
     time_text = FONT.render(f"Time: {round(elapsed_time)}s", 1, "white")
     WIN.blit(time_text, (10, 10))
 
-    points_text = FONT.render(f"Points: {points}s", 1, "white")
-    WIN.blit(points_text, (30, 10))
+    points_text = FONT.render(f"Points: {points}", 1, "white")
+    WIN.blit(points_text, (10, 50))
 
-    pygame.draw.rect(WIN, "blue", player)
+    pygame.draw.rect(WIN, player.colour, player)
 
     for star in stars:
-        pygame.draw.rect(WIN, "white", star)
+        pygame.draw.rect(WIN, star.colour, star)
 
     pygame.display.update()
 
 def main():
     run = True
 
-    player = pygame.Rect(200, HEIGHT - PLAYER_HEIGHT,
-                        PLAYER_WIDTH, PLAYER_HEIGHT)
+    player = ColouredRect(200, HEIGHT - PLAYER_HEIGHT,
+                        PLAYER_WIDTH, PLAYER_HEIGHT, "white")
     
     clock = pygame.time.Clock()
     start_time = time.time()
     elapsed_time = 0
+
+    points = 0
 
     star_add_increment = 2000 # time in milliseconds
     star_count = 0
@@ -81,8 +86,9 @@ def main():
         # generate all of our stars
         if star_count > star_add_increment:
             for _ in range(3):
+                colour_decider = random.randint(1,10)
                 star_x = random.randint(0, WIDTH - STAR_WIDTH)
-                star = pygame.Rect(star_x, -STAR_HEIGHT, STAR_WIDTH, STAR_HEIGHT)
+                star = ColouredRect(star_x, -STAR_HEIGHT, STAR_WIDTH, STAR_HEIGHT, "white" if colour_decider <= 5 else "red")
                 stars.append(star)
 
             star_add_increment = max(200, star_add_increment - 50)
@@ -103,10 +109,14 @@ def main():
             star.y += STAR_VEL
             if star.y > HEIGHT:
                 stars.remove(star)
-            elif star.y + star.height >= player.y and star.colliderect(player): # the first part of the and statement just makes it so that we don't have to check for collision if we're not even in the same y coordinates as the player.
+            elif star.colour == "red" and star.y + star.height >= player.y and star.colliderect(player): # the first part of the and statement just makes it so that we don't have to check for collision if we're not even in the same y coordinates as the player.
+                # bad star, you lose
                 stars.remove(star)
                 hit = True
                 break
+            elif star.colour == "white" and star.y + star.height >= player.y and star.colliderect(player):
+                # good star, give you a point
+                points += 1
         # checking for hit
         if hit:
             lost_text = FONT.render("You lost!", 1, "white")
@@ -115,7 +125,7 @@ def main():
             pygame.time.delay(4000)
             main()
         # draw everything
-        draw(player, elapsed_time, stars)
+        draw(player, elapsed_time, stars, points)
 
     pygame.quit()
 
