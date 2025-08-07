@@ -3,6 +3,27 @@ import time
 import random
 pygame.font.init()
 
+class ColouredRect: # This is me wrapping the pygame.Rect object in order to add a colour property.
+    def __init__(self, x, y, width, height, colour):
+        self.rect = pygame.Rect(x, y, width, height)
+        self.color = colour
+    
+    # Proxy attributes of pygame.Rect
+
+    def __getattr__(self, attr):
+        return getattr(self.rect, attr)
+    
+    def __setattr__(self, attr, value):
+        if attr in ("rect", "color"):
+            super().__setattr__(attr, value)
+        else:
+            setattr(self.rect, attr, value)
+
+    def draw(self, surface):
+        pygame.draw.rect(surface, self.color, self.rect)
+
+
+
 WIDTH, HEIGHT = 1000, 800
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Rain Dodge")
@@ -20,11 +41,14 @@ STAR_VEL = 4
 
 FONT = pygame.font.SysFont("Arial", 30)
 
-def draw(player, elapsed_time, stars):
+def draw(player, elapsed_time, stars, points):
     WIN.blit(BG, (0, 0))
 
     time_text = FONT.render(f"Time: {round(elapsed_time)}s", 1, "white")
     WIN.blit(time_text, (10, 10))
+
+    points_text = FONT.render(f"Points: {points}s", 1, "white")
+    WIN.blit(points_text, (30, 10))
 
     pygame.draw.rect(WIN, "blue", player)
 
