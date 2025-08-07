@@ -16,7 +16,7 @@ PLAYER_VEL = 5
 
 STAR_WIDTH = 10
 STAR_HEIGHT = 20
-STAR_VEL = 5
+STAR_VEL = 4
 
 FONT = pygame.font.SysFont("Arial", 30)
 
@@ -83,6 +83,13 @@ def main():
                 stars.remove(star)
                 hit = True
                 break
+        
+        if hit:
+            lost_text = FONT.render("You lost!", 1, "white")
+            WIN.blit(lost_text, (WIDTH/2 - lost_text.get_width()/2, HEIGHT/2 - lost_text.get_height/2))
+            pygame.display.update()
+            pygame.time.delay(4000)
+            main()
         # draw everything
         draw(player, elapsed_time, stars)
 
