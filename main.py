@@ -81,7 +81,7 @@ def main():
 
 
     while run:
-        star_count += clock.tick(60) # while loop will only run 60 times in one second
+        star_count += clock.tick(60) # while loop will only run 60 times in one second. Also, secondarily, clock.tick(60) returns the amount of milliseconds it takes for one tick.
         elapsed_time = time.time() - start_time
         # generate all of our stars
         if star_count > star_add_increment:
@@ -111,15 +111,17 @@ def main():
                 stars.remove(star)
             elif star.colour == "red" and star.y + star.height >= player.y and star.colliderect(player): # the first part of the and statement just makes it so that we don't have to check for collision if we're not even in the same y coordinates as the player.
                 # bad star, you lose
-                stars.remove(star)
+                stars.remove(star) # save resources, no need to render if its off the screen
                 hit = True
                 break
             elif star.colour == "white" and star.y + star.height >= player.y and star.colliderect(player):
                 # good star, give you a point
+                stars.remove(star)
                 points += 1
+                print(f"Collected a white star! Total points: {points}") # added for debugging
         # checking for hit
         if hit:
-            lost_text = FONT.render("You lost!", 1, "white")
+            lost_text = FONT.render(f"You lost! You've collected {points} points this round!", 1, "white")
             WIN.blit(lost_text, (WIDTH/2 - lost_text.get_width()/2, HEIGHT/2 - lost_text.get_height()/2))
             pygame.display.update()
             pygame.time.delay(4000)
